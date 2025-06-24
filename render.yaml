@@ -3,5 +3,5 @@ services:
     name: smart-url-shortener
     env: python
     buildCommand: ""
-    startCommand: "python shorturl.py"
-    plan: free
+    startCommand: gunicorn shorturl:app
+    autoDeploy: true
