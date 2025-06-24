@@ -1,168 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Smart URL Shortener</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #1f4037, #99f2c8);
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
       margin: 0;
       padding: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      flex-direction: column;
     }
 
     .container {
       background: #fff;
-      border-radius: 20px;
-      padding: 30px;
-      max-width: 800px;
+      padding: 40px 30px;
+      border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+      max-width: 700px;
       width: 100%;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-      text-align: center;
+      color: #333;
     }
 
     h1 {
-      font-size: 1.8em;
-      color: #1f4037;
       margin-bottom: 25px;
+      font-size: 2em;
+      color: #203a43;
+      text-align: center;
     }
 
     input[type="url"] {
       width: 100%;
       padding: 15px;
       font-size: 1em;
-      border-radius: 10px;
+      border-radius: 8px;
       border: 1px solid #ccc;
       margin-bottom: 20px;
-      outline: none;
     }
 
     button {
-      padding: 12px 20px;
-      font-size: 1em;
+      padding: 14px 20px;
+      background-color: #2c5364;
+      color: white;
       border: none;
-      border-radius: 10px;
-      margin: 5px;
+      font-size: 1em;
+      border-radius: 8px;
       cursor: pointer;
-      transition: background 0.3s ease;
     }
 
-    .submit-btn { background: #1f4037; color: #fff; }
-    .submit-btn:hover { background: #14532d; }
+    button:hover {
+      background-color: #203a43;
+    }
 
-    .copy-btn { background: #f0f0f0; color: #2c5364; }
-    .erase-btn { background-color: #ffe5e5; color: #b22222; }
-    .clear-all-btn { background-color: #fce4ec; color: #880e4f; }
+    .result, .history {
+      margin-top: 25px;
+    }
 
-    .result a {
-      display: block;
+    .short-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
       margin-top: 10px;
-      color: #1f4037;
+      background: #f5f5f5;
+      padding: 10px;
+      border-radius: 8px;
+      color: #333;
+    }
+
+    .short-link a {
+      color: #2c5364;
       font-weight: bold;
     }
 
-    .history {
-      margin-top: 30px;
-      text-align: left;
-      overflow-x: auto;
+    .copy-btn, .delete-btn {
+      background-color: #eee;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
+    .copy-btn:hover { background: #ccc; }
+    .delete-btn:hover { background: #f44336; color: white; }
 
-    th, td {
-      padding: 12px;
-      border: 1px solid #ccc;
-      text-align: left;
-    }
-
-    th {
-      background-color: #f0f0f0;
-    }
-
-    .button-group {
-      margin-top: 10px;
-    }
-
-    #copiedMsg {
-      margin-top: 10px;
-      color: green;
-      font-size: 0.9em;
-      display: none;
+    .erase-all {
+      margin-top: 20px;
+      text-align: center;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Smart URL Shortener</h1>
-
     <form method="POST">
-      <input type="url" name="long_URL" placeholder="Paste your long URL here..." required />
-      <button class="submit-btn" type="submit">Shorten URL</button>
+      <input type="url" name="long_URL" placeholder="Paste your long URL here" required />
+      <button type="submit">Shorten URL</button>
     </form>
 
     {% if short_url %}
     <div class="result">
-      <div><strong>Shortened URL:</strong></div>
-      <a href="{{ short_url }}" target="_blank" id="shortenedLink">{{ short_url }}</a>
-      <div class="button-group">
-        <button class="copy-btn" onclick="copyToClipboard()">Copy</button>
-        <form method="POST" action="/erase" style="display:inline;">
-          <input type="hidden" name="short_url" value="{{ short_url }}">
-          <button class="erase-btn" type="submit">Erase</button>
-        </form>
+      <p><strong>Shortened URL:</strong></p>
+      <div class="short-link">
+        <a href="{{ short_url }}" target="_blank" id="shortenedLink">{{ short_url }}</a>
+        <button class="copy-btn" onclick="copyToClipboard('{{ short_url }}')">Copy</button>
       </div>
-      <div id="copiedMsg">Copied to clipboard!</div>
     </div>
     {% endif %}
 
+    {% if urls %}
     <div class="history">
-      <h3>🔗 Your URL History</h3>
-      {% if urls %}
-      <form method="POST" action="/clear_all">
-        <button class="clear-all-btn" type="submit">Clear All</button>
-      </form>
-      <table>
-        <tr>
-          <th>#</th>
-          <th>Short URL</th>
-          <th>Original URL</th>
-          <th>Created At</th>
-          <th>Clicks</th>
-        </tr>
-        {% for url in urls %}
-        <tr>
-          <td>{{ loop.index }}</td>
-          <td><a href="{{ request.url_root }}{{ url.short }}" target="_blank">{{ url.short }}</a></td>
-          <td style="word-break: break-word;">{{ url.long }}</td>
-          <td>{{ url.created_at }}</td>
-          <td>{{ url.clicks }}</td>
-        </tr>
-        {% endfor %}
-      </table>
-      {% else %}
-        <p>No links created yet.</p>
-      {% endif %}
+      <h3>History</h3>
+      {% for url in urls %}
+      <div class="short-link">
+        <div>
+          <div><strong>Short:</strong> <a href="/{{ url.short_code }}" target="_blank">{{ request.url_root }}{{ url.short_code }}</a></div>
+          <div><strong>Clicks:</strong> {{ url.clicks }}</div>
+        </div>
+        <form method="POST" action="/delete/{{ url.id }}">
+          <button class="delete-btn">Delete</button>
+        </form>
+      </div>
+      {% endfor %}
     </div>
+    <div class="erase-all">
+      <form method="POST" action="/delete_all">
+        <button class="delete-btn">Erase All</button>
+      </form>
+    </div>
+    {% endif %}
   </div>
 
   <script>
-    function copyToClipboard() {
-      const link = document.getElementById('shortenedLink').href;
-      navigator.clipboard.writeText(link).then(() => {
-        const msg = document.getElementById('copiedMsg');
-        msg.style.display = 'block';
-        setTimeout(() => { msg.style.display = 'none'; }, 2000);
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert("Copied to clipboard!");
       });
     }
   </script>
