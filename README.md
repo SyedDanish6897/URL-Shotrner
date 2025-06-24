@@ -21,4 +21,4 @@ A simple and clean web app built with Flask and SQLite that allows users to shor
 
 ## 👨‍💻 Author
 
-Made with ❤️ by [Syed Danish ](https://github.com/syed-danish6897)
+Made with ❤️ by [Syed Danish ](https://github.com/SyedDanish6897)
