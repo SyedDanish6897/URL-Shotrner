@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Smart URL Shortener</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
@@ -17,79 +17,59 @@
       margin: 0;
       padding: 20px;
     }
-
     .container {
       background: #fff;
-      padding: 40px 30px;
+      padding: 30px;
       border-radius: 16px;
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-      max-width: 600px;
       width: 100%;
+      max-width: 700px;
       color: #333;
       text-align: center;
     }
-
-    h1 {
-      margin-bottom: 25px;
-      font-size: 2em;
-      color: #203a43;
-    }
-
     input[type="url"] {
       width: 100%;
       padding: 15px;
       font-size: 1em;
+      margin-bottom: 15px;
       border-radius: 8px;
       border: 1px solid #ccc;
-      margin-bottom: 20px;
     }
-
-    button {
-      width: 100%;
-      padding: 14px;
-      background-color: #2c5364;
-      color: white;
+    button, .copy-btn {
+      padding: 12px 20px;
+      font-size: 1em;
       border: none;
-      font-size: 1.1em;
       border-radius: 8px;
       cursor: pointer;
-      margin-bottom: 10px;
+      margin-top: 10px;
     }
-
+    button {
+      background-color: #2c5364;
+      color: white;
+    }
     button:hover {
       background-color: #203a43;
     }
-
-    .result {
-      margin-top: 20px;
-    }
-
-    .result a {
-      color: #2c5364;
-      font-weight: bold;
-      font-size: 1.1em;
-      display: block;
-      margin-bottom: 10px;
-    }
-
     .copy-btn {
-      padding: 10px 15px;
-      background: #f0f0f0;
-      border: none;
-      color: #2c5364;
-      border-radius: 6px;
-      cursor: pointer;
+      background-color: #f0f0f0;
+      color: #203a43;
     }
-
     .copy-btn:hover {
-      background-color: #ddd;
+      background-color: #ccc;
     }
-
-    #copiedMsg {
-      margin-top: 10px;
-      color: green;
-      font-size: 0.9em;
-      display: none;
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+    .erase-btn {
+      background-color: red;
+      color: white;
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -97,17 +77,41 @@
   <div class="container">
     <h1>Smart URL Shortener</h1>
     <form method="POST">
-      <input type="url" name="long_URL" placeholder="Paste your long URL here" required />
-      <button type="submit">Shorten URL</button>
+      <input type="url" name="long_URL" placeholder="Paste your long URL here" required>
+      <br>
+      <button type="submit">Shorten</button>
     </form>
 
     {% if short_url %}
-    <div class="result">
-      <div><strong>Shortened URL:</strong></div>
-      <a href="{{ short_url }}" target="_blank" id="shortenedLink">{{ short_url }}</a>
+      <p><strong>Shortened URL:</strong> <a href="{{ short_url }}" id="shortenedLink" target="_blank">{{ short_url }}</a></p>
       <button class="copy-btn" onclick="copyToClipboard()">Copy</button>
-      <div id="copiedMsg">Copied to clipboard!</div>
-    </div>
+      <p id="copiedMsg" style="color: green; display: none;">Copied!</p>
+    {% endif %}
+
+    {% if urls %}
+      <table>
+        <tr>
+          <th>Short URL</th>
+          <th>Long URL</th>
+          <th>Clicks</th>
+          <th>Delete</th>
+        </tr>
+        {% for url in urls %}
+        <tr>
+          <td><a href="/{{ url.short_code }}" target="_blank">{{ request.host_url }}{{ url.short_code }}</a></td>
+          <td>{{ url.long_url }}</td>
+          <td>{{ url.clicks }}</td>
+          <td>
+            <form method="POST" action="/delete/{{ url.id }}">
+              <button type="submit">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+      <form method="POST" action="/erase">
+        <button type="submit" class="erase-btn">Erase All</button>
+      </form>
     {% endif %}
   </div>
 
