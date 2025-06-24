@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: smart-url-shortener
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python shorturl.py"
+    autoDeploy: true
