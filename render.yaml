@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: smart-url-shortener
+    env: python
+    buildCommand: ""
+    startCommand: "python shorturl.py"
+    plan: free
